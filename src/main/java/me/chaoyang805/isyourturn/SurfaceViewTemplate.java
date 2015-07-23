@@ -39,6 +39,7 @@ public class SurfaceViewTemplate extends SurfaceView implements SurfaceHolder.Ca
     public void surfaceCreated(SurfaceHolder holder) {
         isRunning = true;
         t = new Thread(this);
+        t.start();
     }
 
     @Override
@@ -59,6 +60,15 @@ public class SurfaceViewTemplate extends SurfaceView implements SurfaceHolder.Ca
     }
 
     private void draw() {
+        try {
+            mCanvas = mHolder.lockCanvas();
+            if (mCanvas != null) {
+                //drawsomething
+            }
+        }catch (Exception e){
 
+        }finally {
+            mHolder.unlockCanvasAndPost(mCanvas);
+        }
     }
 }

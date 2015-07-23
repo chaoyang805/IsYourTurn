@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -35,6 +36,9 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
     private float mCenter;
     private int mPadding;
     private float mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20f, getResources().getDisplayMetrics());
+
+    private float mStartAngle = 0;
+    private float mSweepAngle = 360f / mItemCount;
 
     public LuckyWheelSurfaceView(Context context) {
         this(context, null);
@@ -80,10 +84,12 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
         mArcPaint.setAntiAlias(true);
         mArcPaint.setDither(true);
 
+        mRange = new RectF(mPadding, mPadding, mPadding + mDiameter, mPadding + mDiameter);
         mImgBitmaps = new Bitmap[mItemCount];
         for (int i = 0; i < mItemCount; i++) {
-
+            mImgBitmaps[i] = BitmapFactory.decodeResource(getResources(),mImgs[i]);
         }
+
     }
 
     @Override
@@ -108,11 +114,41 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
             mCanvas = mHolder.lockCanvas();
             if (mCanvas != null) {
                 //drawsomething
+                //draw background
+                drawBackground();
+                float tmpAngle = mStartAngle;
+                for (int i = 0; i < mItemCount; i++) {
+                    mArcPaint.setColor(mColors[i]);
+                    mCanvas.drawArc(mRange, tmpAngle, mSweepAngle, true, mArcPaint);
+                    drawTextOnPath(tmpAngle, mStrs[i]);
+                    drawIcon(tmpAngle,mImgBitmaps[i]);
+                    tmpAngle += mSweepAngle;
+                }
+
             }
         }catch (Exception e){
 
         }finally {
             mHolder.unlockCanvasAndPost(mCanvas);
         }
+    }
+
+    private void drawTextOnPath(float tmpAngle, String str) {
+        Path path = new Path();
+        path.addArc(mRange, tmpAngle, mSweepAngle);
+        float textWidth = mTextPaint.measureText(str);
+        float hOffset = (float) ((mDiameter * Math.PI / mItemCount - textWidth) / 2);
+        float vOffset = mDiameter / 2 / 6;
+        mCanvas.drawTextOnPath(str, path, hOffset, vOffset, mTextPaint);
+    }
+
+    private void drawIcon(float tmpAngle, Bitmap bitmap) {
+
+    }
+
+    private void drawBackground() {
+        mCanvas.drawColor(0xFFFFFFFF);
+        mCanvas.drawBitmap(backGround, null, new RectF(mPadding / 2, mPadding / 2,
+                getMeasuredWidth() - mPadding / 2, getMeasuredHeight() - mPadding / 2), null);
     }
 }
