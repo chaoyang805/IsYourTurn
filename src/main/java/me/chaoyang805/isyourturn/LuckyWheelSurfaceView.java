@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -32,7 +33,7 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
 
     private int mItemCount = 6;
     private RectF mRange;
-    private float mDiameter;
+    private int mDiameter;
     private float mCenter;
     private int mPadding;
     private float mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20f, getResources().getDisplayMetrics());
@@ -105,7 +106,16 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
     @Override
     public void run() {
         while (isRunning) {
+            long start = System.currentTimeMillis();
             draw();
+            long end = System.currentTimeMillis();
+            if (end - start < 50) {
+                try {
+                    Thread.sleep(50 - (end - start));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -143,7 +153,13 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
     }
 
     private void drawIcon(float tmpAngle, Bitmap bitmap) {
-
+        int imgWidth = mDiameter / 8;
+        double angle = (tmpAngle + 360 / mItemCount / 2) * Math.PI / 180;
+        int x = (int) (mCenter + mDiameter / 2 / 2 * Math.cos(angle));
+        int y = (int) (mCenter + mDiameter / 2 / 2 * Math.sin(angle));
+        Rect rect = new Rect(x - imgWidth / 2, y - imgWidth / 2,
+                x + imgWidth / 2, y + imgWidth / 2);
+        mCanvas.drawBitmap(bitmap, null, rect, null);
     }
 
     private void drawBackground() {
