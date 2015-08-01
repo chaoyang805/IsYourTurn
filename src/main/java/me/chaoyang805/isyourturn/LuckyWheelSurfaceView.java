@@ -32,6 +32,7 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
     private Paint mTextPaint,mArcPaint;
 
     private int mItemCount = 6;
+    private int mSpeed = 0;
     private RectF mRange;
     private int mDiameter;
     private float mCenter;
@@ -100,7 +101,7 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        isRunning = false;
     }
 
     @Override
@@ -134,7 +135,7 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
                     drawIcon(tmpAngle,mImgBitmaps[i]);
                     tmpAngle += mSweepAngle;
                 }
-
+            mStartAngle += mSpeed;
             }
         }catch (Exception e){
 
@@ -166,5 +167,13 @@ public class LuckyWheelSurfaceView extends SurfaceView implements SurfaceHolder.
         mCanvas.drawColor(0xFFFFFFFF);
         mCanvas.drawBitmap(backGround, null, new RectF(mPadding / 2, mPadding / 2,
                 getMeasuredWidth() - mPadding / 2, getMeasuredHeight() - mPadding / 2), null);
+    }
+
+    public void start(int speed) {
+        mSpeed = speed;
+    }
+
+    public void stop() {
+        mSpeed = 0;
     }
 }
